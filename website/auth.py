@@ -11,27 +11,26 @@ auth = Blueprint('auth',__name__)
 
 
 #login function
-@auth.route('/login' , methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
-        if user:
-            if check_password_hash(user.password, password):
-                flash('Logged in succsessfully!', category='success')
-                login_user(user, remember=True)
-                return redirect(url_for('views.home'))
-            else:
-                flash('Incorrect Password, try again', category='error')
-        else:
-            flash('Email does not exist.', category='error')
-        if not user.is_verified:
-            flash('Please confirm your email before logging in.', category='warning')
-        return redirect(url_for('auth.login'))
+
+        # Unified error message for all failure cases
+        if not user or not check_password_hash(user.password, password) or not user.is_verified:
+            flash('Wrong email or password.', category='error')
+            return redirect(url_for('auth.login'))
+
+        # Successful login
+        flash('Logged in successfully!', category='success')
+        login_user(user, remember=True)
+        return redirect(url_for('views.home'))
 
     return render_template("login.html", user=current_user)
+
 
 
 #logout function
