@@ -18,18 +18,15 @@ def login():
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            flash('Logged in successfully!', category='success')
+            login_user(user, remember=True)  # ✅ Safe to use here
+            return redirect(url_for('views.home'))
+        else:
+            flash('Incorrect email or password', category='error')
+            
+    return render_template("login.html")
 
-        # Unified error message for all failure cases
-        if not user or not check_password_hash(user.password, password) or not user.is_verified:
-            flash('Wrong email or password.', category='error')
-            return redirect(url_for('auth.login'))
-
-        # Successful login
-        flash('Logged in successfully!', category='success')
-        login_user(user, remember=True)
-        return redirect(url_for('views.home'))
-
-    return render_template("login.html", user=current_user)
 
 
 
