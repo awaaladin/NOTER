@@ -25,7 +25,7 @@ def login():
         else:
             flash('Incorrect email or password', category='error')
             
-    return render_template("login.html")
+    return render_template("home.html")
 
 
 
